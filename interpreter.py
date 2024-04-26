@@ -16,8 +16,8 @@ class Interpreter:
 
     @staticmethod
     def visit_ConnectNode(node):
-        node_a = Name(node.name_a.value, node.name_a.final)
-        node_b = Name(node.name_b.value, node.name_b.final)
+        node_a = Name(node.name_a.value, node.name_a.final, node.name_a.start)
+        node_b = Name(node.name_b.value, node.name_b.final, node.name_b.start)
         weight = Number(node.weight.value)
         return Connection(name_a=node_a,
                           name_b=node_b,

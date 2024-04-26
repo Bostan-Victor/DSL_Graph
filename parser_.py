@@ -28,11 +28,13 @@ class Parser:
         return result
 
     def expr(self):
-        start_node = self.node()
+
         weight = NumberNode(value=0)
         l_direction = False
         r_direction = False
         destroy = False
+
+        start_node = self.node()
 
         while self.current_token is not None:
 
@@ -61,18 +63,22 @@ class Parser:
 
     def node(self):
         token = self.current_token
+        start = False
+        final = False
 
         if token.type == TokenType.FINAL:
             self.advance()
             token = self.current_token
-            if token.type == TokenType.NAME:
-                self.advance()
-                return NameNode(value=token.value, final=True)
-            else:
-                self.raise_error()
-        elif token.type == TokenType.NAME:
+            final = True
+
+        if token.type == TokenType.START:
             self.advance()
-            return NameNode(value=token.value, final=False)
+            token = self.current_token
+            start = True
+
+        if token.type == TokenType.NAME:
+            self.advance()
+            return NameNode(value=token.value, final=final, start=start)
 
         self.raise_error()
 

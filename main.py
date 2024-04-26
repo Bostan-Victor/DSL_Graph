@@ -3,8 +3,8 @@ from parser_ import Parser
 from interpreter import Interpreter
 
 tree = []
-text = ""
-
+# TODO Create a separate console window
+# TODO add import form file
 while True:
     try:
         while True:
@@ -25,6 +25,3 @@ while True:
         graph.draw()
     except Exception as e:
         print(e)
-
-
-

@@ -13,10 +13,12 @@ class NumberNode:
 class NameNode:
     value: str
     final: bool
+    start: bool
 
     def __repr__(self):
         final_status = "final" if self.final else "not final"
-        return f"NameNode(value='{self.value}', status='{final_status}')"
+        start_status = "start" if self.start else "not start"
+        return f"NameNode(value='{self.value}', status='{final_status, start_status}')"
 
 
 @dataclass

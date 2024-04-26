@@ -10,6 +10,7 @@ class TokenType(Enum):
     FINAL = 4
     WEIGHT = 5
     DESTROY = 6
+    START = 7
 
 
 @dataclass

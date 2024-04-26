@@ -17,10 +17,12 @@ class Number:
 class Name:
     value: str
     final: bool
+    start: bool
 
     def __repr__(self):
         final_status = "final" if self.final else "not final"
-        return f"NameNode(value='{self.value}', status='{final_status}')"
+        start_status = "start" if self.start else "not start"
+        return f"NameNode(value='{self.value}', status='{final_status, start_status}')"
 
 
 @dataclass
@@ -35,8 +37,10 @@ class Connection:
     def draw(self, dot):
 
         self.isFinal(self.name_a, dot)
+        self.isStart(self.name_a, dot)
 
         self.isFinal(self.name_b, dot)
+        self.isStart(self.name_b, dot)
 
         if self.right_dir:
             if self.weight.value != 0:
@@ -64,6 +68,11 @@ class Connection:
             dot.node(node.value, label=node.value, shape='doublecircle')
         else:
             dot.node(node.value, label=node.value, shape='circle')
+
+    @staticmethod
+    def isStart(node, dot):
+        if node.start:
+            dot.edge('', node.value)
 
 
 class Graph:

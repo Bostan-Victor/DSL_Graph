@@ -10,6 +10,9 @@ class Lexer:
         self.text = iter(text)
         self.advance()
 
+    def raise_error(self):
+        raise Exception(f"Illegal character '{self.current_char}'")
+    
     def advance(self):
         try:
             self.current_char = next(self.text)
@@ -39,8 +42,15 @@ class Lexer:
             elif self.current_char == '/':
                 self.advance()
                 yield Token(TokenType.DESTROY)
+            elif self.current_char == '=':
+                self.advance()
+                if self.current_char == '>':
+                    self.advance()
+                    yield Token(TokenType.START)
+                else:
+                    self.raise_error()
             else:
-                raise Exception(f"Illegal character '{self.current_char}'")
+                self.raise_error()
 
     def generate_number(self):
         decimal_point_count = 0
