@@ -9,6 +9,7 @@ class TokenType(Enum):
     RIGHT = 3
     FINAL = 4
     WEIGHT = 5
+    DESTROY = 6
 
 
 @dataclass

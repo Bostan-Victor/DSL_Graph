@@ -36,6 +36,9 @@ class Lexer:
             elif self.current_char == '*':
                 self.advance()
                 yield Token(TokenType.FINAL)
+            elif self.current_char == '/':
+                self.advance()
+                yield Token(TokenType.DESTROY)
             else:
                 raise Exception(f"Illegal character '{self.current_char}'")
 

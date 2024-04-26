@@ -1,4 +1,3 @@
-from nodes import ConnectNode
 from values import Number, Name, Connection, Graph
 
 
@@ -20,7 +19,12 @@ class Interpreter:
         node_a = Name(node.name_a.value, node.name_a.final)
         node_b = Name(node.name_b.value, node.name_b.final)
         weight = Number(node.weight.value)
-        return Connection(name_a=node_a, name_b=node_b, weight=weight, left_dir=node.left_dir, right_dir=node.right_dir)
+        return Connection(name_a=node_a,
+                          name_b=node_b,
+                          weight=weight,
+                          left_dir=node.left_dir,
+                          right_dir=node.right_dir,
+                          destroy=node.destroy)
 
     @staticmethod
     def clear_tree(tree):
@@ -33,4 +37,7 @@ class Interpreter:
             if key not in seen:
                 seen.add(key)
                 new_tree.append(node)
+
+        new_tree = [node for node in new_tree if not getattr(node, 'destroy', False)]
+
         return new_tree

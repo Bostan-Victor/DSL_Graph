@@ -16,7 +16,6 @@ class NameNode:
 
     def __repr__(self):
         final_status = "final" if self.final else "not final"
-        # final_status = False
         return f"NameNode(value='{self.value}', status='{final_status}')"
 
 
@@ -27,7 +26,8 @@ class ConnectNode:
     left_dir: bool
     right_dir: bool
     weight: NumberNode
+    destroy: bool
 
     def __repr__(self):
         return f"ConnectNode({self.name_a} {'<-' if self.left_dir else '-'} {self.weight} " \
-               f"{'->' if self.right_dir else '-'} {self.name_b})"
+               f"{'->' if self.right_dir else '-'} {self.name_b}) {'status:'} {'destroyed' if self.destroy else 'alive'} "

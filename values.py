@@ -30,6 +30,7 @@ class Connection:
     left_dir: bool
     right_dir: bool
     weight: Number
+    destroy: bool
 
     def draw(self, dot):
 
