@@ -2,18 +2,29 @@ from lexer import Lexer
 from parser_ import Parser
 from interpreter import Interpreter
 
+tree = []
+text = ""
+
 while True:
     try:
-        text = input("graph> ")
-        lexer = Lexer(text)
-        tokens = lexer.generate_tokens()
-        parser = Parser(tokens)
-        tree = parser.parse()
+        while True:
+            text = input("graph> ")
+            if text == "draw":
+                break
+
+            lexer = Lexer(text)
+            tokens = lexer.generate_tokens()
+            parser = Parser(tokens)
+            branch = parser.parse()
+            print(branch)
+            if branch:
+                tree.append(branch)
         print(tree)
-        if not tree:
-            continue
         interpreter = Interpreter()
-        graph = interpreter.visit(tree)
+        graph, tree = interpreter.visit(tree)
         graph.draw()
     except Exception as e:
         print(e)
+
+
+
