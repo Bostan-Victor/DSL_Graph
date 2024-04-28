@@ -5,26 +5,23 @@ class Interpreter:
     def __init__(self):
         pass
 
-    def visit(self, tree):
-        graph = Graph()
-        tree = self.clear_tree(tree)
+    def visit(self, tree, graph):
+        # Assuming this method updates the graph based on the parsed tree
         for node in tree:
             method_name = f'visit_{type(node).__name__}'
-            method = getattr(self, method_name)
-            graph.add_connection(method(node))
-        return graph, tree
+            method = getattr(self, method_name, None)
+            if method:
+                method(node, graph)  # Pass the graph to the specific visit method
 
-    @staticmethod
-    def visit_ConnectNode(node):
+        return graph
+
+    def visit_ConnectNode(self, node, graph):
+        # Example: create a connection in the graph based on the node information
         node_a = Name(node.name_a.value, node.name_a.final, node.name_a.start)
         node_b = Name(node.name_b.value, node.name_b.final, node.name_b.start)
         weight = Number(node.weight.value)
-        return Connection(name_a=node_a,
-                          name_b=node_b,
-                          weight=weight,
-                          left_dir=node.left_dir,
-                          right_dir=node.right_dir,
-                          destroy=node.destroy)
+        connection = Connection(name_a=node_a, name_b=node_b, weight=weight, destroy=node.destroy)
+        graph.add_connection(connection)
 
     @staticmethod
     def clear_tree(tree):

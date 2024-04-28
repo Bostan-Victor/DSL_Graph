@@ -1,27 +1,27 @@
+from interpreter import Interpreter
 from lexer import Lexer
 from parser_ import Parser
-from interpreter import Interpreter
+from values import Graph
 
-tree = []
-# TODO Create a separate console window
-# TODO add import form file
-while True:
-    try:
-        while True:
+def main():
+    graph = Graph()
+    interpreter = Interpreter()
+
+    while True:
+        try:
             text = input("graph> ")
-            if text == "draw":
+            if text.lower() == "exit":
                 break
 
             lexer = Lexer(text)
             tokens = lexer.generate_tokens()
             parser = Parser(tokens)
             branch = parser.parse()
-            print(branch)
             if branch:
-                tree.append(branch)
-        print(tree)
-        interpreter = Interpreter()
-        graph, tree = interpreter.visit(tree)
-        graph.draw()
-    except Exception as e:
-        print(e)
+                # Pass both the branch and the graph to the visit method
+                graph = interpreter.visit([branch], graph)  # ensure the visit method updates and returns the graph
+        except Exception as e:
+            print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()

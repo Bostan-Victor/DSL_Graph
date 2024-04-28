@@ -1,17 +1,10 @@
-import os
+import matplotlib.pyplot as plt
+import networkx as nx
 from dataclasses import dataclass
-from typing import List
-
-from graphviz import Digraph
-
 
 @dataclass
 class Number:
     value: float
-
-    def __repr__(self):
-        return f"{self.value}"
-
 
 @dataclass
 class Name:
@@ -19,75 +12,39 @@ class Name:
     final: bool
     start: bool
 
-    def __repr__(self):
-        final_status = "final" if self.final else "not final"
-        start_status = "start" if self.start else "not start"
-        return f"NameNode(value='{self.value}', status='{final_status, start_status}')"
-
-
 @dataclass
 class Connection:
     name_a: Name
     name_b: Name
-    left_dir: bool
-    right_dir: bool
     weight: Number
     destroy: bool
 
-    def draw(self, dot):
-
-        self.isFinal(self.name_a, dot)
-        self.isStart(self.name_a, dot)
-
-        self.isFinal(self.name_b, dot)
-        self.isStart(self.name_b, dot)
-
-        if self.right_dir:
-            if self.weight.value != 0:
-                dot.edge(self.name_a.value, self.name_b.value, label=str(self.weight.value))
-            else:
-                dot.edge(self.name_a.value, self.name_b.value)
-        if self.left_dir:
-            if self.weight.value != 0:
-                dot.edge(self.name_b.value, self.name_a.value, label=str(self.weight.value))
-            else:
-                dot.edge(self.name_b.value, self.name_a.value)
-        if not (self.right_dir or self.left_dir):
-            if self.weight.value != 0:
-                dot.edge(self.name_a.value, self.name_b.value, label=str(self.weight.value), dir='none')
-            else:
-                dot.edge(self.name_a.value, self.name_b.value, dir='none')
-
-    def __repr__(self):
-        return f"ConnectNode({self.name_a} {'<-' if self.left_dir else '-'} {self.weight} " \
-               f"{'->' if self.right_dir else '-'} {self.name_b})"
-
-    @staticmethod
-    def isFinal(node, dot):
-        if node.final:
-            dot.node(node.value, label=node.value, shape='doublecircle')
-        else:
-            dot.node(node.value, label=node.value, shape='circle')
-
-    @staticmethod
-    def isStart(node, dot):
-        if node.start:
-            dot.edge('', node.value)
-
-
 class Graph:
     def __init__(self):
-        self.connections: List[Connection] = []
-        self.dot = Digraph()
+        self.G = nx.DiGraph()
+        plt.ion()  # Turn on interactive mode
+        self.fig, self.ax = plt.subplots()
 
-    def add_connection(self, connection: Connection):
-        self.connections.append(connection)
+    def add_connection(self, connection):
+        if not connection.destroy:
+            self.G.add_edge(connection.name_a.value, connection.name_b.value, weight=connection.weight.value)
+        self.draw()
 
     def draw(self):
-        for connection in self.connections:
-            connection.draw(self.dot)
+        self.ax.clear()
+        pos = nx.kamada_kawai_layout(self.G)  # Using a layout that better handles overlaps
+        nx.draw(self.G, pos, with_labels=True, font_weight='bold', node_color='skyblue', edge_color='k', node_size=700, ax=self.ax)
 
-        script_dir = os.path.dirname(os.path.realpath(__file__))
-        output_path = os.path.join(script_dir, 'connection_graph')
+        # Omit zero weights from the edge labels
+        edge_weights = {edge: data['weight'] for edge, data in self.G.edges.items() if data['weight'] > 0}
+        nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_weights, ax=self.ax)
 
-        self.dot.render(output_path, format='png', cleanup=True, view=True)
+        # Custom handling for loopback connections and bidirectional edges can be added here
+
+        self.fig.canvas.draw()
+        self.fig.canvas.flush_events()
+
+    def remove_connection(self, connection):
+        if self.G.has_edge(connection.name_a.value, connection.name_b.value):
+            self.G.remove_edge(connection.name_a.value, connection.name_b.value)
+        self.draw()
