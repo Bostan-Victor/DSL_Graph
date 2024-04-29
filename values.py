@@ -18,6 +18,8 @@ class Connection:
     name_b: Name
     weight: Number
     destroy: bool
+    left_dir: bool  # Direction towards A
+    right_dir: bool  # Direction towards B
 
 class Graph:
     def __init__(self):
@@ -27,19 +29,47 @@ class Graph:
 
     def add_connection(self, connection):
         if not connection.destroy:
-            self.G.add_edge(connection.name_a.value, connection.name_b.value, weight=connection.weight.value)
+            # Add the edge with the appropriate direction
+            if connection.left_dir and connection.right_dir:
+                style = 'double_arrow'  # bidirectional
+            elif connection.left_dir:
+                style = 'left_arrow'  # arrow pointing to A
+            elif connection.right_dir:
+                style = 'right_arrow'  # arrow pointing to B
+            else:
+                style = 'line'  # straight line
+
+            self.G.add_edge(connection.name_a.value, connection.name_b.value,
+                            weight=connection.weight.value, style=style)
         self.draw()
 
     def draw(self):
         self.ax.clear()
         pos = nx.kamada_kawai_layout(self.G)  # Using a layout that better handles overlaps
-        nx.draw(self.G, pos, with_labels=True, font_weight='bold', node_color='skyblue', edge_color='k', node_size=700, ax=self.ax)
+        nx.draw_networkx_nodes(self.G, pos, node_color='skyblue', node_size=700, ax=self.ax)
+        nx.draw_networkx_labels(self.G, pos, font_weight='bold', ax=self.ax)
 
-        # Omit zero weights from the edge labels
-        edge_weights = {edge: data['weight'] for edge, data in self.G.edges.items() if data['weight'] > 0}
-        nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_weights, ax=self.ax)
+        edge_labels = {}
+        for edge in self.G.edges(data=True):
+            style = edge[2].get('style', 'line')
+            weight = edge[2]['weight']
+            if weight > 0:
+                edge_labels[(edge[0], edge[1])] = f"{weight}"
 
-        # Custom handling for loopback connections and bidirectional edges can be added here
+            if style == 'double_arrow':
+                nx.draw_networkx_edges(self.G, pos, edgelist=[(edge[0], edge[1])],
+                                       arrowstyle='<->', arrowsize=20, ax=self.ax)
+            elif style == 'left_arrow':
+                nx.draw_networkx_edges(self.G, pos, edgelist=[(edge[0], edge[1])],
+                                       arrowstyle='<-', arrowsize=20, ax=self.ax)
+            elif style == 'right_arrow':
+                nx.draw_networkx_edges(self.G, pos, edgelist=[(edge[0], edge[1])],
+                                       arrowstyle='->', arrowsize=20, ax=self.ax)
+            else:
+                nx.draw_networkx_edges(self.G, pos, edgelist=[(edge[0], edge[1])],
+                                       arrowstyle='-', ax=self.ax)
+
+        nx.draw_networkx_edge_labels(self.G, pos, edge_labels=edge_labels, ax=self.ax)
 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
