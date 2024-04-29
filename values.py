@@ -75,6 +75,23 @@ class Graph:
         self.fig.canvas.flush_events()
 
     def remove_connection(self, connection):
+        # This method checks if an edge between name_a and name_b exists and removes it.
         if self.G.has_edge(connection.name_a.value, connection.name_b.value):
             self.G.remove_edge(connection.name_a.value, connection.name_b.value)
+            print(f"Removed edge from {connection.name_a.value} to {connection.name_b.value}")
+        elif self.G.has_edge(connection.name_b.value, connection.name_a.value):
+            # Check the other direction as well, in case the edge is bidirectional or reversed
+            self.G.remove_edge(connection.name_b.value, connection.name_a.value)
+            print(f"Removed edge from {connection.name_b.value} to {connection.name_a.value}")
+
+        # Check if either node is now isolated and remove it if so
+        if self.G.degree(connection.name_a.value) == 0:
+            self.G.remove_node(connection.name_a.value)
+            print(f"Removed isolated node: {connection.name_a.value}")
+
+        if self.G.degree(connection.name_b.value) == 0:
+            self.G.remove_node(connection.name_b.value)
+            print(f"Removed isolated node: {connection.name_b.value}")
+
         self.draw()
+

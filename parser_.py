@@ -28,13 +28,13 @@ class Parser:
         return result
 
     def expr(self):
+        start_node = self.node()
 
+        # Initial settings
         weight = NumberNode(value=0)
         l_direction = False
         r_direction = False
         destroy = False
-
-        start_node = self.node()
 
         while self.current_token is not None:
 
@@ -42,15 +42,23 @@ class Parser:
                 self.advance()
                 l_direction = True
 
-            self.dash()
-
-            if self.current_token.type == TokenType.WEIGHT:
-                weight = self.weight()
-
-            if self.current_token.type == TokenType.DESTROY:
-                destroy = self.destroy()
-
-            self.dash()
+            # Look for the dash, which might be part of destroy command
+            if self.current_token.type == TokenType.DASH:
+                self.advance()
+                if self.current_token.type == TokenType.DESTROY:
+                    destroy = True
+                    self.advance()  # Skip the destroy token
+                    if self.current_token.type == TokenType.DASH:
+                        self.advance()  # Skip the final dash in the destroy sequence
+                elif self.current_token.type == TokenType.WEIGHT:
+                    weight = self.weight()
+                    if self.current_token.type == TokenType.DASH:
+                        self.advance()  # Skip the final dash in the destroy sequence
+                elif self.current_token.type == TokenType.DASH:
+                    # This means it was a double dash (--) without destroy
+                    self.advance()
+                else:
+                    self.raise_error("Expected another '-' for connection or '/-' for destroy")
 
             if self.current_token.type == TokenType.RIGHT:
                 self.advance()
@@ -59,7 +67,8 @@ class Parser:
             end_node = self.node()
 
             return ConnectNode(name_a=start_node, name_b=end_node, left_dir=l_direction, right_dir=r_direction,
-                               weight=weight, destroy=destroy)
+                            weight=weight, destroy=destroy)
+
 
     def node(self):
         token = self.current_token

@@ -18,10 +18,14 @@ def main():
             parser = Parser(tokens)
             branch = parser.parse()
             if branch:
-                # Pass both the branch and the graph to the visit method
-                graph = interpreter.visit([branch], graph)  # ensure the visit method updates and returns the graph
+                # Check if it's a destruction command
+                if branch.destroy:
+                    graph.remove_connection(interpreter.create_connection(branch))
+                else:
+                    graph.add_connection(interpreter.create_connection(branch))
         except Exception as e:
             print(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
+
