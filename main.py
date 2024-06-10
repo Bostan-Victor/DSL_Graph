@@ -10,13 +10,21 @@ from values import Graph
 class GraphEditorApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Graph Editor")
+        self.root.title("GraphExpress")
 
         self.frame = tk.Frame(root)
         self.frame.pack(fill=tk.BOTH, expand=1)
 
+        # Configure grid to allow resizing
+        self.frame.grid_rowconfigure(2, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(3, weight=1)
+
         self.default_mode_button = tk.Button(self.frame, text="Default Mode", command=self.set_default_mode, width=15)
         self.default_mode_button.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+
+        self.upload_button = tk.Button(self.frame, text="Upload File", command=self.upload_file, width=15)
+        self.upload_button.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
         self.bipartite_mode_button = tk.Button(self.frame, text="Bipartite Mode", command=self.set_bipartite_mode, width=15)
         self.bipartite_mode_button.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
@@ -25,18 +33,13 @@ class GraphEditorApp:
         self.tree_mode_button.grid(row=0, column=2, padx=10, pady=5, sticky="ew")
 
         self.text_area = tk.Text(self.frame, wrap=tk.WORD, height=20, width=40)
-        self.text_area.grid(row=1, column=0, padx=10, pady=10, rowspan=4, columnspan=2)
-
-        self.update_button = tk.Button(self.frame, text="Update Graph", command=self.update_graph, width=15)
-        self.update_button.grid(row=1, column=2, padx=10, pady=5, sticky="ew")
-
-        self.upload_button = tk.Button(self.frame, text="Upload File", command=self.upload_file, width=15)
-        self.upload_button.grid(row=2, column=2, padx=10, pady=5, sticky="ew")
+        self.text_area.grid(row=2, column=0, padx=10, pady=10, rowspan=4, columnspan=2, sticky="nsew")
+        self.text_area.bind('<<Modified>>', self.on_text_change)
 
         self.fig = Figure(figsize=(5, 5), dpi=100)
         self.graph = Graph(self.fig)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
-        self.canvas.get_tk_widget().grid(row=1, column=3, rowspan=4, padx=10, pady=10)
+        self.canvas.get_tk_widget().grid(row=2, column=3, rowspan=4, padx=10, pady=10, sticky="nsew")
         self.canvas.draw()
 
         self.interpreter = Interpreter()
@@ -63,6 +66,10 @@ class GraphEditorApp:
         self.tree_mode_button.config(relief=tk.SUNKEN, bg='lightblue')
         self.default_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
         self.bipartite_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
+
+    def on_text_change(self, event):
+        self.text_area.edit_modified(0)  # Reset the modified flag
+        self.update_graph()
 
     def update_graph(self):
         text = self.text_area.get("1.0", tk.END).strip()
@@ -104,6 +111,7 @@ class GraphEditorApp:
 
 def main():
     root = tk.Tk()
+    root.iconbitmap('icon.ico')  # Set the path to your icon file here
     app = GraphEditorApp(root)
     root.mainloop()
 
