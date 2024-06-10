@@ -27,6 +27,10 @@ class Graph:
         self.G = nx.DiGraph()
         self.fig = fig
         self.ax = self.fig.add_subplot(111)
+        self.mode = "default"
+
+    def set_mode(self, mode):
+        self.mode = mode
 
     def add_connection(self, connection):
         if not connection.destroy:
@@ -46,7 +50,12 @@ class Graph:
 
     def draw(self):
         self.ax.clear()
-        pos = nx.kamada_kawai_layout(self.G)  # Using a layout that better handles overlaps
+        if self.mode == "default":
+            pos = nx.kamada_kawai_layout(self.G)  # Using a layout that better handles overlaps
+        elif self.mode == "bipartite":
+            top_nodes, bottom_nodes = self.get_bipartite_nodes()
+            pos = nx.bipartite_layout(self.G, top_nodes)
+
         nx.draw_networkx_nodes(self.G, pos, node_color='skyblue', node_size=700, ax=self.ax)
         nx.draw_networkx_labels(self.G, pos, font_weight='bold', ax=self.ax)
 
@@ -74,6 +83,11 @@ class Graph:
 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
+
+    def get_bipartite_nodes(self):
+        top_nodes = {n for n in self.G if n.islower()}
+        bottom_nodes = {n for n in self.G if n.isupper()}
+        return top_nodes, bottom_nodes
 
     def remove_connection(self, connection):
         # This method checks if an edge between name_a and name_b exists and removes it.
