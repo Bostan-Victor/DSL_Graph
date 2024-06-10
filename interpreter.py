@@ -15,7 +15,6 @@ class Interpreter:
         return graph
 
     def create_connection(self, node):
-        # Helper method to create a Connection object from a node
         node_a = Name(node.name_a.value, node.name_a.final, node.name_a.start)
         node_b = Name(node.name_b.value, node.name_b.final, node.name_b.start)
         weight = Number(node.weight.value)
@@ -23,10 +22,6 @@ class Interpreter:
             name_a=node_a, name_b=node_b, weight=weight, destroy=node.destroy,
             left_dir=node.left_dir, right_dir=node.right_dir
         )
-
-    def visit_ConnectNode(self, node, graph):
-        # This is now handled in visit by calling add_connection or remove_connection directly
-        pass
 
     @staticmethod
     def clear_tree(tree):
