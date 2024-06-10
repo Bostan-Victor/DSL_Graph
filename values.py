@@ -1,43 +1,44 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 from dataclasses import dataclass
+from matplotlib.figure import Figure
 
-@dataclass
+@dataclass(frozen=True)
 class Number:
     value: float
 
-@dataclass
+@dataclass(frozen=True)
 class Name:
     value: str
     final: bool
     start: bool
 
-@dataclass
+@dataclass(frozen=True)
 class Connection:
     name_a: Name
     name_b: Name
     weight: Number
     destroy: bool
-    left_dir: bool  # Direction towards A
-    right_dir: bool  # Direction towards B
+    left_dir: bool  
+    right_dir: bool  
 
 class Graph:
-    def __init__(self):
+    def __init__(self, fig: Figure):
         self.G = nx.DiGraph()
-        plt.ion()  # Turn on interactive mode
-        self.fig, self.ax = plt.subplots()
+        self.fig = fig
+        self.ax = self.fig.add_subplot(111)
 
     def add_connection(self, connection):
         if not connection.destroy:
             # Add the edge with the appropriate direction
             if connection.left_dir and connection.right_dir:
-                style = 'double_arrow'  # bidirectional
+                style = 'double_arrow'  
             elif connection.left_dir:
-                style = 'left_arrow'  # arrow pointing to A
+                style = 'left_arrow'  
             elif connection.right_dir:
-                style = 'right_arrow'  # arrow pointing to B
+                style = 'right_arrow'  
             else:
-                style = 'line'  # straight line
+                style = 'line'  
 
             self.G.add_edge(connection.name_a.value, connection.name_b.value,
                             weight=connection.weight.value, style=style)
@@ -94,4 +95,3 @@ class Graph:
             print(f"Removed isolated node: {connection.name_b.value}")
 
         self.draw()
-
