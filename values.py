@@ -50,13 +50,21 @@ class Graph:
 
     def draw(self):
         self.ax.clear()
+        if len(self.G) == 0:
+            self.fig.canvas.draw()
+            return
+
         if self.mode == "default":
             pos = nx.kamada_kawai_layout(self.G)  # Using a layout that better handles overlaps
         elif self.mode == "bipartite":
             top_nodes, bottom_nodes = self.get_bipartite_nodes()
             pos = nx.bipartite_layout(self.G, top_nodes)
         elif self.mode == "tree":
-            pos = self.hierarchy_pos(self.G)
+            if not nx.is_tree(self.G):
+                print("Cannot use tree layout on a graph that is not a tree. Falling back to default layout.")
+                pos = nx.kamada_kawai_layout(self.G)
+            else:
+                pos = self.hierarchy_pos(self.G)
 
         nx.draw_networkx_nodes(self.G, pos, node_color='skyblue', node_size=700, ax=self.ax)
         nx.draw_networkx_labels(self.G, pos, font_weight='bold', ax=self.ax)
@@ -114,7 +122,7 @@ class Graph:
 
     def hierarchy_pos(self, G, root=None, width=1., vert_gap=0.2, vert_loc=0, xcenter=0.5):
         if not nx.is_tree(G):
-            raise TypeError('cannot use hierarchy_pos on a graph that is not a tree')
+            raise TypeError('Cannot use hierarchy_pos on a graph that is not a tree')
 
         if root is None:
             if isinstance(G, nx.DiGraph):
