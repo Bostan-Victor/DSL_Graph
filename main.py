@@ -21,6 +21,9 @@ class GraphEditorApp:
         self.bipartite_mode_button = tk.Button(self.frame, text="Bipartite Mode", command=self.set_bipartite_mode, width=15)
         self.bipartite_mode_button.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
+        self.tree_mode_button = tk.Button(self.frame, text="Tree Mode", command=self.set_tree_mode, width=15)
+        self.tree_mode_button.grid(row=0, column=2, padx=10, pady=5, sticky="ew")
+
         self.text_area = tk.Text(self.frame, wrap=tk.WORD, height=20, width=40)
         self.text_area.grid(row=1, column=0, padx=10, pady=10, rowspan=4, columnspan=2)
 
@@ -45,12 +48,21 @@ class GraphEditorApp:
         self.update_graph()
         self.default_mode_button.config(relief=tk.SUNKEN, bg='lightblue')
         self.bipartite_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
+        self.tree_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
 
     def set_bipartite_mode(self):
         self.graph.set_mode("bipartite")
         self.update_graph()
         self.bipartite_mode_button.config(relief=tk.SUNKEN, bg='lightblue')
         self.default_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
+        self.tree_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
+
+    def set_tree_mode(self):
+        self.graph.set_mode("tree")
+        self.update_graph()
+        self.tree_mode_button.config(relief=tk.SUNKEN, bg='lightblue')
+        self.default_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
+        self.bipartite_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
 
     def update_graph(self):
         text = self.text_area.get("1.0", tk.END).strip()
