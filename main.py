@@ -7,6 +7,30 @@ from lexer import Lexer
 from parser_ import Parser
 from values import Graph
 
+class CodeEditor(tk.Frame):
+    def __init__(self, master, **text_options):
+        super().__init__(master)
+        self.text = tk.Text(self, **text_options)
+        self.text.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        self.line_numbers = tk.Canvas(self, width=30, bg='lightgray')
+        self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
+        
+        self.text.bind('<KeyRelease>', self.update_line_numbers)
+        self.text.bind('<MouseWheel>', self.update_line_numbers)
+        self.update_line_numbers()
+
+    def update_line_numbers(self, event=None):
+        self.line_numbers.delete("all")
+        i = self.text.index("@0,0")
+        while True:
+            dline = self.text.dlineinfo(i)
+            if dline is None:
+                break
+            y = dline[1]
+            linenum = str(i).split(".")[0]
+            self.line_numbers.create_text(2, y, anchor="nw", text=linenum)
+            i = self.text.index(f"{i}+1line")
+
 class GraphEditorApp:
     def __init__(self, root):
         self.root = root
@@ -26,15 +50,18 @@ class GraphEditorApp:
         self.upload_button = tk.Button(self.frame, text="Upload File", command=self.upload_file, width=15)
         self.upload_button.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
+        self.download_button = tk.Button(self.frame, text="Save Graph", command=self.download_graph, width=15)
+        self.download_button.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+
         self.bipartite_mode_button = tk.Button(self.frame, text="Bipartite Mode", command=self.set_bipartite_mode, width=15)
         self.bipartite_mode_button.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
         self.tree_mode_button = tk.Button(self.frame, text="Tree Mode", command=self.set_tree_mode, width=15)
         self.tree_mode_button.grid(row=0, column=2, padx=10, pady=5, sticky="ew")
 
-        self.text_area = tk.Text(self.frame, wrap=tk.WORD, height=20, width=40)
+        self.text_area = CodeEditor(self.frame, wrap=tk.WORD, height=20, width=40)
         self.text_area.grid(row=2, column=0, padx=10, pady=10, rowspan=4, columnspan=2, sticky="nsew")
-        self.text_area.bind('<<Modified>>', self.on_text_change)
+        self.text_area.text.bind('<<Modified>>', self.on_text_change)
 
         self.fig = Figure(figsize=(5, 5), dpi=100)
         self.graph = Graph(self.fig)
@@ -68,11 +95,11 @@ class GraphEditorApp:
         self.bipartite_mode_button.config(relief=tk.RAISED, bg='SystemButtonFace')
 
     def on_text_change(self, event):
-        self.text_area.edit_modified(0)  # Reset the modified flag
+        self.text_area.text.edit_modified(0)  # Reset the modified flag
         self.update_graph()
 
     def update_graph(self):
-        text = self.text_area.get("1.0", tk.END).strip()
+        text = self.text_area.text.get("1.0", tk.END).strip()
         lines = text.split('\n')
 
         current_connections = set()
@@ -105,9 +132,14 @@ class GraphEditorApp:
         if file_path:
             with open(file_path, "r") as file:
                 code = file.read()
-                self.text_area.delete("1.0", tk.END)
-                self.text_area.insert(tk.END, code)
+                self.text_area.text.delete("1.0", tk.END)
+                self.text_area.text.insert(tk.END, code)
             self.update_graph()
+
+    def download_graph(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG Files", "*.png")])
+        if file_path:
+            self.fig.savefig(file_path)
 
 def main():
     root = tk.Tk()
@@ -117,3 +149,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
