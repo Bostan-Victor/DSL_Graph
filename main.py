@@ -26,6 +26,9 @@ class GraphEditorApp:
         self.upload_button = tk.Button(self.frame, text="Upload File", command=self.upload_file, width=15)
         self.upload_button.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
+        self.download_button = tk.Button(self.frame, text="Save Graph", command=self.download_graph, width=15)
+        self.download_button.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+
         self.bipartite_mode_button = tk.Button(self.frame, text="Bipartite Mode", command=self.set_bipartite_mode, width=15)
         self.bipartite_mode_button.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
@@ -108,6 +111,11 @@ class GraphEditorApp:
                 self.text_area.delete("1.0", tk.END)
                 self.text_area.insert(tk.END, code)
             self.update_graph()
+
+    def download_graph(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG Files", "*.png")])
+        if file_path:
+            self.fig.savefig(file_path)
 
 def main():
     root = tk.Tk()
